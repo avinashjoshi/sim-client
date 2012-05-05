@@ -7,6 +7,7 @@ package com.utd.ns.sim.client.action;
 import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
 import com.utd.ns.sim.client.helper.Messages;
+import com.utd.ns.sim.client.listener.TCPListener;
 import com.utd.ns.sim.client.view.LoginForm;
 import com.utd.ns.sim.client.view.UserList;
 import com.utd.ns.sim.packet.Packet;
@@ -46,8 +47,9 @@ public class LoginAction implements ActionListener, Runnable {
              * Crafting a packet to send to the server
              */
             Packet sendPacket = new Packet();
-            int nonce = Functions.generateNonce();
-            sendPacket.craftPacket(command, Integer.toString(nonce), loginForm.getUserName() + ":" + loginForm.getPassword());
+            Long nonce = Functions.generateNonce();
+
+            sendPacket.craftPacket(command, Long.toString(nonce), loginForm.getUserName() + ":" + loginForm.getPassword());
 
             //Sending packet
             Serial.writeObject(Flags.socketToServer, sendPacket);
@@ -57,6 +59,9 @@ public class LoginAction implements ActionListener, Runnable {
             if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
                 loginForm.showErrorMessage(command + " success" + ": " + recvPacket.getData());
                 Flags.sessionUserName = loginForm.getUserName();
+                // Open a TCP Listner on random port
+                TCPListener tcpListen = new TCPListener(recvPacket.getNonce());
+                tcpListen.start();
                 UserList uList = new UserList();
                 this.loginForm.setVisible(false);
                 uList.setVisible(true);

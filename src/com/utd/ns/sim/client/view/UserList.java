@@ -6,6 +6,7 @@ package com.utd.ns.sim.client.view;
 
 import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
+import com.utd.ns.sim.client.helper.Messages;
 import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
 import java.io.IOException;
@@ -15,12 +16,14 @@ import java.io.IOException;
  * @author avinash
  */
 public class UserList extends javax.swing.JFrame {
+    public String thisUser;
 
     /**
      * Creates new form UserList
      */
     public UserList() {
         initComponents();
+        thisUser = Flags.sessionUserName;
         setUserNameLbl(Flags.sessionUserName);
         refreshUserList();
     }
@@ -32,8 +35,8 @@ public class UserList extends javax.swing.JFrame {
              * Crafting a packet to send to the server
              */
             Packet sendPacket = new Packet();
-            int nonce = Functions.generateNonce();
-            sendPacket.craftPacket(command, Integer.toString(nonce), Flags.sessionUserName);
+            long nonce = Functions.generateNonce();
+            sendPacket.craftPacket(command, Long.toString(nonce), Flags.sessionUserName);
             //Sending packet
             Serial.writeObject(Flags.socketToServer, sendPacket);
 
@@ -46,14 +49,13 @@ public class UserList extends javax.swing.JFrame {
                 if ("".equalsIgnoreCase(data)) {
                     showErrorMessage("No users online!");
                 }
-                String[] userListValues;
                 if (data.contains(",")) {
-                    userListValues = data.split(",");
+                    Flags.loggedInUserList = data.split(",");
                 } else {
-                    userListValues = new String[1];
-                    userListValues[0] = data;
+                    Flags.loggedInUserList = new String[1];
+                    Flags.loggedInUserList[0] = data;
                 }
-                userList.setListData(userListValues);
+                userList.setListData(Flags.loggedInUserList);
             } else {
                 showErrorMessage(command + " failed" + ": " + recvPacket.getData());
             }
@@ -64,7 +66,31 @@ public class UserList extends javax.swing.JFrame {
         }
     }
 
-    public void setUserNameLbl(String message) {
+    public boolean validateChoice() {
+        errorMsg.setVisible(false);
+
+        if (this.userList.getSelectedIndex() < 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void hideErrorMessage() {
+        errorMsg.setVisible(false);
+    }
+
+    public String getSelectedUser() {
+        if (validateChoice()) {
+            int listIndex = userList.getSelectedIndex();
+            return (Flags.loggedInUserList[listIndex]);
+        } else {
+            showErrorMessage(Messages.NOT_SELECTED);
+            return null;
+        }
+    }
+
+    public final void setUserNameLbl(String message) {
         uNameLbl.setVisible(true);
         uNameLbl.setText("");
         uNameLbl.setText(message);
@@ -75,7 +101,7 @@ public class UserList extends javax.swing.JFrame {
         errorMsg.setText("");
         errorMsg.setText("<html>* " + message + "</html>");
     }
-    
+
     public void logout() {
         try {
             String command = "logout";
@@ -83,8 +109,8 @@ public class UserList extends javax.swing.JFrame {
              * Crafting a packet to send to the server
              */
             Packet sendPacket = new Packet();
-            int nonce = Functions.generateNonce();
-            sendPacket.craftPacket(command, Integer.toString(nonce), Flags.sessionUserName);
+            long nonce = Functions.generateNonce();
+            sendPacket.craftPacket(command, Long.toString(nonce), Flags.sessionUserName);
             //Sending packet
             Serial.writeObject(Flags.socketToServer, sendPacket);
 
@@ -93,6 +119,48 @@ public class UserList extends javax.swing.JFrame {
             System.exit(0);
             if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
                 //Logout successful
+            } else {
+                showErrorMessage(command + " failed" + ": " + recvPacket.getData());
+            }
+        } catch (ClassNotFoundException ex) {
+            showErrorMessage("OOps! Error: " + ex.getMessage());
+        } catch (IOException ex) {
+            showErrorMessage(ex.getMessage());
+        }
+    }
+
+    /*
+     * Initialize chat. Get user details from server
+     */
+    public void chatInit(String username) {
+        try {
+
+            String command = "talk";
+
+            /*
+             * Crafting a packet to send to the server
+             */
+            String dataToSend = thisUser + ":" + username;
+            System.out.println(dataToSend);
+            Packet sendPacket = new Packet();
+            long nonce = Functions.generateNonce();
+            sendPacket.craftPacket(command, Long.toString(nonce), dataToSend);
+            //Sending packet
+            System.out.println("Sending command talk " + Flags.socketToServer);
+            Serial.writeObject(Flags.socketToServer, sendPacket);
+            System.out.println("Out of write");
+
+            // Wait for reply from server
+            Packet recvPacket = (Packet) Serial.readObject(Flags.socketToServer);
+            System.out.println("In here");
+            String commandReceived = recvPacket.getCommand();
+            String data = recvPacket.getData();
+            Packet internalPacket = recvPacket.pkt;
+            if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
+                //Received correct packet
+                String[] split = data.split(":");
+                //Connect to IP:port
+                showErrorMessage(data + " - " + internalPacket.getData());
             } else {
                 showErrorMessage(command + " failed" + ": " + recvPacket.getData());
             }
@@ -136,6 +204,11 @@ public class UserList extends javax.swing.JFrame {
         titleLbl.setText("SIM: Logged In Users");
 
         chat.setText("Chat");
+        chat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                chatMouseClicked(evt);
+            }
+        });
 
         logout.setText("Logout");
         logout.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -224,6 +297,11 @@ public class UserList extends javax.swing.JFrame {
         logout();
     }//GEN-LAST:event_formWindowClosed
 
+    private void chatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chatMouseClicked
+        if (getSelectedUser() != null) {
+            chatInit(getSelectedUser());
+        }
+    }//GEN-LAST:event_chatMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton chat;
     private javax.swing.JLabel errorMsg;

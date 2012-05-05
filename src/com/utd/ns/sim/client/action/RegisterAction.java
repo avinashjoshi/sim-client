@@ -46,8 +46,8 @@ public class RegisterAction implements ActionListener, Runnable {
              * Crafting a packet to send to the server
              */
             Packet sendPacket = new Packet();
-            int nonce = Functions.generateNonce();
-            sendPacket.craftPacket(command, Integer.toString(nonce), loginForm.getUserName() + ":" + loginForm.getPassword());
+            Long nonce = Functions.generateNonce();
+            sendPacket.craftPacket(command, Long.toString(nonce), loginForm.getUserName() + ":" + loginForm.getPassword());
 
             //Sending packet
             Serial.writeObject(Flags.socketToServer, sendPacket);

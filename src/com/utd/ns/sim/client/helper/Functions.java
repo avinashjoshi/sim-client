@@ -16,13 +16,13 @@ import java.util.ArrayList;
 public class Functions {
 
     /**
-     * Decrements integer nonce by 1
+     * Decrements long nonce by 1
      *
      * @param nonce nonce of type int
      * @return decremented nonce as String
      */
-    public static String nonceFail(int nonce) {
-        return (Integer.toString(nonce - 1));
+    public static String nonceFail(long nonce) {
+        return (Long.toString(nonce - 1));
     }
 
     /**
@@ -32,17 +32,17 @@ public class Functions {
      * @return decremented nonce as String
      */
     public static String nonceFail(String nonce) {
-        return (nonceFail(Integer.parseInt(nonce)));
+        return (nonceFail(Long.parseLong(nonce)));
     }
 
     /**
-     * Increments integer nonce by 1
+     * Increments long nonce by 1
      *
      * @param nonce nonce of type int
      * @return incremented nonce as String
      */
-    public static String nonceSuccess(int nonce) {
-        return (Integer.toString(nonce + 1));
+    public static String nonceSuccess(long nonce) {
+        return (Long.toString(nonce + 1));
     }
 
     /**
@@ -52,7 +52,7 @@ public class Functions {
      * @return incremented nonce as String
      */
     public static String nonceSuccess(String nonce) {
-        return (nonceSuccess(Integer.parseInt(nonce)));
+        return (nonceSuccess(Long.parseLong(nonce)));
     }
 
     /**
@@ -62,8 +62,8 @@ public class Functions {
      * @param toWhat nonce sent
      * @return true or false
      */
-    public static boolean checkNonce(String what, int toWhat) {
-        return checkNonce(Integer.parseInt(what), toWhat);
+    public static boolean checkNonce(String what, long toWhat) {
+        return checkNonce(Long.parseLong(what), toWhat);
     }
 
     /**
@@ -73,7 +73,7 @@ public class Functions {
      * @param toWhat nonce sent
      * @return true or false
      */
-    public static boolean checkNonce(int what, int toWhat) {
+    public static boolean checkNonce(long what, long toWhat) {
         if (what == toWhat) {
             return true;
         } else {
@@ -81,7 +81,7 @@ public class Functions {
         }
     }
 
-    public static int generateNonce() {
+    public static long generateNonce() {
         try {
             // Create a secure random number generator
             SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -98,11 +98,11 @@ public class Functions {
             sr.setSeed(seed);
             SecureRandom sr2 = SecureRandom.getInstance("SHA1PRNG");
             sr2.setSeed(seed);
-            return sr2.nextInt();
+            return sr2.nextLong();
         } catch (NoSuchAlgorithmException e) {
         }
         //return NONCE;
-        return 0;
+        return Long.parseLong("0");
     }
 
     public static ArrayList<String> LoadCommands(String cmdString, String sep) {
