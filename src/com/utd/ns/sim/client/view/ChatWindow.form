@@ -27,7 +27,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Component id="typeArea" min="-2" pref="346" max="-2" attributes="0"/>
+                      <Component id="chatLine" min="-2" pref="346" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="send" min="-2" pref="66" max="-2" attributes="0"/>
                   </Group>
@@ -65,7 +65,7 @@
               <Component id="jScrollPane1" pref="288" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="typeArea" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="chatLine" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="send" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -91,15 +91,21 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JTextField" name="typeArea">
+    <Component class="javax.swing.JTextField" name="chatLine">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Click here to start typing"/>
       </Properties>
+      <Events>
+        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="chatLineKeyPressed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="send">
       <Properties>
         <Property name="text" type="java.lang.String" value="Send"/>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="sendMouseClicked"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="chattingWithLbl">
       <Properties>

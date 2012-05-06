@@ -4,6 +4,7 @@
  */
 package com.utd.ns.sim.client.view;
 
+import com.utd.ns.sim.client.action.ChattingAction;
 import com.utd.ns.sim.client.helper.Flags;
 import java.net.Socket;
 
@@ -11,10 +12,11 @@ import java.net.Socket;
  *
  * @author avinash
  */
-public class ChatWindow extends javax.swing.JFrame {
+public class ChatWindow extends javax.swing.JFrame{
 
     public static Socket socket;
     public static String withUser;
+    public static boolean chatStarted = false;
 
     /**
      * Creates new form ChatWindow
@@ -24,12 +26,15 @@ public class ChatWindow extends javax.swing.JFrame {
         socket = sock;
         withUser = string;
         myInitComponents();
+        
     }
-    
+
     public final void myInitComponents() {
         this.setTitle("SIM: Chatting with " + withUser);
         userLbl.setText(Flags.sessionUserName);
         withUserLbl.setText(withUser);
+        send.addActionListener(new ChattingAction(this));
+        send.doClick();
     }
 
     /**
@@ -43,7 +48,7 @@ public class ChatWindow extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         chatArea = new javax.swing.JTextArea();
-        typeArea = new javax.swing.JTextField();
+        chatLine = new javax.swing.JTextField();
         send = new javax.swing.JButton();
         chattingWithLbl = new javax.swing.JLabel();
         withUserLbl = new javax.swing.JLabel();
@@ -59,9 +64,19 @@ public class ChatWindow extends javax.swing.JFrame {
         chatArea.setRows(5);
         jScrollPane1.setViewportView(chatArea);
 
-        typeArea.setToolTipText("Click here to start typing");
+        chatLine.setToolTipText("Click here to start typing");
+        chatLine.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                chatLineKeyPressed(evt);
+            }
+        });
 
         send.setText("Send");
+        send.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                sendMouseClicked(evt);
+            }
+        });
 
         chattingWithLbl.setText("Chatting with:");
 
@@ -79,7 +94,7 @@ public class ChatWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(typeArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 346, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(chatLine, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 346, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(send, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 66, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
@@ -109,7 +124,7 @@ public class ChatWindow extends javax.swing.JFrame {
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(typeArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(chatLine, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(send))
                 .addContainerGap())
         );
@@ -117,54 +132,52 @@ public class ChatWindow extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /*
-         * Set the Nimbus look and feel
-         */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /*
-         * If Nimbus (introduced in Java SE 6) is not available, stay with the
-         * default look and feel. For details see
-         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ChatWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ChatWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ChatWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ChatWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /*
-         * Create and display the form
-         */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-                //new ChatWindow().setVisible(true);
-            }
-        });
+    public boolean hasChatStarted() {
+        return chatStarted;
     }
+    
+    public void chatStarted() {
+        chatStarted = true;
+    }
+    
+    public void chatStopped() {
+        chatStarted = false;
+    }
+    
+    public Socket getSocket() {
+        return ChatWindow.socket;
+    }
+    
+    public void sendClicked () {
+        chatArea.append("Me: " + chatLine.getText().trim() + "\n");
+        chatLine.setText("");
+    }
+    
+    public String getChatLine() {
+        return chatLine.getText().trim();
+    }
+    
+    public void updateChatArea(String string) {
+        chatArea.append(withUser + ": " + string + "\n");
+    }
+    
+    private void sendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sendMouseClicked
+        
+    }//GEN-LAST:event_sendMouseClicked
+
+    private void chatLineKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_chatLineKeyPressed
+        if (evt.getKeyCode() == 10) {
+            this.send.doClick();
+        }
+    }//GEN-LAST:event_chatLineKeyPressed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea chatArea;
+    private javax.swing.JTextField chatLine;
     private javax.swing.JLabel chattingWithLbl;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton send;
-    private javax.swing.JTextField typeArea;
     private javax.swing.JLabel userLbl;
     private javax.swing.JLabel withUserLbl;
     // End of variables declaration//GEN-END:variables

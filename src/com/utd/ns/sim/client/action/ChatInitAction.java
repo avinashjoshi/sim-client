@@ -52,6 +52,7 @@ public class ChatInitAction implements ActionListener, Runnable {
         try {
             // Connect to socket
             socketToUser = new Socket(host, port);
+            System.out.println("---------- " + socketToUser + " -----------");
             uListForm.showErrorMessage("Connected to " + host + "...");
             return true;
         } catch (UnknownHostException ex) {
@@ -112,6 +113,7 @@ public class ChatInitAction implements ActionListener, Runnable {
                     if (Functions.checkNonce(recvPacket.getNonce(), timeStamp + 1)) {
                         //Done!
                         //open ChatWindow
+                        System.out.println(socketToUser);
                         ChatWindow cWin = new ChatWindow(socketToUser, userToChat);
                         cWin.setVisible(true);
                         Flags.chatSession.add(this.userToChat);

@@ -88,6 +88,7 @@ class TCPConnect extends Thread {
                                     "YES");
                             Serial.writeObject(sock, sendPacket);
                             //Open chatwindow
+                            System.out.println(sock);
                             ChatWindow cWin = new ChatWindow(sock, dataValue[0]);
                             cWin.setVisible(true);
                             Flags.chatSession.add(dataValue[0]);
