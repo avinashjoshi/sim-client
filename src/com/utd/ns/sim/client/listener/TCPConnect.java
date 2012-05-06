@@ -6,6 +6,7 @@ package com.utd.ns.sim.client.listener;
 
 import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
+import com.utd.ns.sim.client.view.ChatWindow;
 import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
 import java.io.IOException;
@@ -87,9 +88,11 @@ class TCPConnect extends Thread {
                                     "YES");
                             Serial.writeObject(sock, sendPacket);
                             //Open chatwindow
-                            System.out.println(dataValue[0]);
+                            ChatWindow cWin = new ChatWindow(sock, dataValue[0]);
+                            cWin.setVisible(true);
                             Flags.chatSession.add(dataValue[0]);
                             System.out.println("Chatting!!!!");
+                            break;
                         } else {
                             sendPacket.craftPacket("talkresponse", Functions.nonceFail(internalPacket.getNonce()),
                                     "NO");

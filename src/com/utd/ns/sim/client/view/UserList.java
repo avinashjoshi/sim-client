@@ -4,7 +4,7 @@
  */
 package com.utd.ns.sim.client.view;
 
-import com.utd.ns.sim.client.action.ChatAction;
+import com.utd.ns.sim.client.action.ChatInitAction;
 import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
 import com.utd.ns.sim.client.helper.Messages;
@@ -32,7 +32,7 @@ public class UserList extends javax.swing.JFrame {
     }
 
     public final void myInitComponents() {
-        chat.addActionListener(new ChatAction(this));
+        chat.addActionListener(new ChatInitAction(this));
     }
 
     public final void refreshUserList() {

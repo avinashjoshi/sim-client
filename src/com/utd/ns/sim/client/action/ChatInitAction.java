@@ -7,6 +7,7 @@ package com.utd.ns.sim.client.action;
 import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
 import com.utd.ns.sim.client.helper.Messages;
+import com.utd.ns.sim.client.view.ChatWindow;
 import com.utd.ns.sim.client.view.UserList;
 import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
@@ -15,19 +16,18 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import javax.swing.JOptionPane;
 
 /**
  *
  * @author Avinash Joshi <avinash.joshi@utdallas.edu>
  */
-public class ChatAction implements ActionListener, Runnable {
+public class ChatInitAction implements ActionListener, Runnable {
 
     public UserList uListForm;
     public String userToChat;
     private Socket socketToUser;
 
-    public ChatAction(UserList uForm) {
+    public ChatInitAction(UserList uForm) {
         this.uListForm = uForm;
     }
 
@@ -112,6 +112,8 @@ public class ChatAction implements ActionListener, Runnable {
                     if (Functions.checkNonce(recvPacket.getNonce(), timeStamp + 1)) {
                         //Done!
                         //open ChatWindow
+                        ChatWindow cWin = new ChatWindow(socketToUser, userToChat);
+                        cWin.setVisible(true);
                         Flags.chatSession.add(this.userToChat);
                         System.out.println("Chatting!!!!");
                     }

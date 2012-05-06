@@ -4,17 +4,32 @@
  */
 package com.utd.ns.sim.client.view;
 
+import com.utd.ns.sim.client.helper.Flags;
+import java.net.Socket;
+
 /**
  *
  * @author avinash
  */
 public class ChatWindow extends javax.swing.JFrame {
 
+    public static Socket socket;
+    public static String withUser;
+
     /**
      * Creates new form ChatWindow
      */
-    public ChatWindow() {
+    public ChatWindow(Socket sock, String string) {
         initComponents();
+        socket = sock;
+        withUser = string;
+        myInitComponents();
+    }
+    
+    public final void myInitComponents() {
+        this.setTitle("SIM: Chatting with " + withUser);
+        userLbl.setText(Flags.sessionUserName);
+        withUserLbl.setText(withUser);
     }
 
     /**
@@ -32,8 +47,10 @@ public class ChatWindow extends javax.swing.JFrame {
         send = new javax.swing.JButton();
         chattingWithLbl = new javax.swing.JLabel();
         withUserLbl = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        userLbl = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("SIM: Chatting with user");
 
         chatArea.setColumns(20);
@@ -50,6 +67,10 @@ public class ChatWindow extends javax.swing.JFrame {
 
         withUserLbl.setText(" ");
 
+        jLabel1.setText("Logged in as:");
+
+        userLbl.setText(" ");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -65,7 +86,10 @@ public class ChatWindow extends javax.swing.JFrame {
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jScrollPane1)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .add(0, 0, Short.MAX_VALUE)
+                                .add(jLabel1)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(userLbl)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .add(chattingWithLbl)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(withUserLbl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -78,7 +102,9 @@ public class ChatWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(chattingWithLbl)
-                    .add(withUserLbl))
+                    .add(withUserLbl)
+                    .add(jLabel1)
+                    .add(userLbl))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -128,16 +154,18 @@ public class ChatWindow extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                new ChatWindow().setVisible(true);
+                //new ChatWindow().setVisible(true);
             }
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea chatArea;
     private javax.swing.JLabel chattingWithLbl;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton send;
     private javax.swing.JTextField typeArea;
+    private javax.swing.JLabel userLbl;
     private javax.swing.JLabel withUserLbl;
     // End of variables declaration//GEN-END:variables
 }
