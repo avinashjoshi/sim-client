@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class UserList extends javax.swing.JFrame {
 
-    public String thisUser;
+    private String thisUser;
 
     /**
      * Creates new form UserList

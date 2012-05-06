@@ -23,9 +23,10 @@ import java.net.UnknownHostException;
  */
 public class ChatInitAction implements ActionListener, Runnable {
 
-    public UserList uListForm;
-    public String userToChat;
+    private UserList uListForm;
+    private String userToChat;
     private Socket socketToUser;
+    private ChatWindow cWin;
 
     public ChatInitAction(UserList uForm) {
         this.uListForm = uForm;
@@ -114,11 +115,9 @@ public class ChatInitAction implements ActionListener, Runnable {
                         //Done!
                         //open ChatWindow
                         System.out.println(socketToUser);
-                        Flags.socketTo.put(userToChat, socketToUser);
-                        Flags.chatWindowList.put(userToChat, new ChatWindow(socketToUser, userToChat));
-                        Flags.chatWindowList.get(userToChat).setVisible(true);
-                        //ChatWindow cWin = new ChatWindow(socketToUser, userToChat);
-                        //cWin.setVisible(true);
+                        cWin = new ChatWindow(socketToUser, userToChat);
+                        System.out.println("===== Doesnt come here :( =====");
+                        cWin.setVisible(true);
                         Flags.chatSession.add(this.userToChat);
                         System.out.println("Chatting!!!!");
                     }

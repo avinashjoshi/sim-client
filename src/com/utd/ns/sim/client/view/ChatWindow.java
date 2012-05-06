@@ -14,9 +14,9 @@ import java.net.Socket;
  */
 public class ChatWindow extends javax.swing.JFrame {
 
-    public static Socket socket;
-    public static String withUser;
-    public static boolean chatStarted = false;
+    private Socket socket;
+    private String withUser;
+    private boolean chatStarted = false;
 
     /**
      * Creates new form ChatWindow
@@ -26,8 +26,6 @@ public class ChatWindow extends javax.swing.JFrame {
         socket = sock;
         withUser = string;
         myInitComponents();
-        this.setVisible(true);
-
     }
 
     public final void myInitComponents() {
@@ -35,6 +33,7 @@ public class ChatWindow extends javax.swing.JFrame {
         userLbl.setText(Flags.sessionUserName);
         withUserLbl.setText(withUser);
         send.addActionListener(new ChattingAction(this));
+        System.out.println("Finished initializing.... window.... before first click");
         send.doClick();
     }
 
@@ -151,7 +150,7 @@ public class ChatWindow extends javax.swing.JFrame {
     }
 
     public Socket getSocket() {
-        return ChatWindow.socket;
+        return socket;
     }
 
     public void sendClicked() {

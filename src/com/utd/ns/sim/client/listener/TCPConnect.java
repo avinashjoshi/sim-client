@@ -31,6 +31,7 @@ class TCPConnect extends Thread {
     private String nonce;
     private String data;
     private Packet internalPacket;
+    private ChatWindow cWin;
 
     TCPConnect(Socket listenSock, int clientNumber) {
         sock = listenSock;
@@ -89,10 +90,8 @@ class TCPConnect extends Thread {
                             Serial.writeObject(sock, sendPacket);
                             //Open chatwindow
                             System.out.println(sock);
-                            Flags.socketFrom.put(dataValue[0], sock);
-                            Flags.chatWindowListFrom.put(dataValue[0], new ChatWindow(sock, dataValue[0]));
-                            //ChatWindow cWin = new ChatWindow(sock, dataValue[0]);
-                            Flags.chatWindowListFrom.get(dataValue[0]).setVisible(true);
+                            cWin = new ChatWindow(sock, dataValue[0]);
+                            cWin.setVisible(true);
                             Flags.chatSession.add(dataValue[0]);
                             System.out.println("Chatting!!!!");
                             break;

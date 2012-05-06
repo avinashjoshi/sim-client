@@ -20,10 +20,9 @@ import java.util.logging.Logger;
  */
 public class ChattingAction implements ActionListener, Runnable {
 
-    private final ChatWindow chatWindow;
-    public static BufferedReader in;
-    public static PrintWriter out;
-    private boolean bufferNotSet = true;
+    private ChatWindow chatWindow;
+    private BufferedReader in;
+    private PrintWriter out;
 
     public ChattingAction(ChatWindow aThis) {
         chatWindow = aThis;
@@ -34,12 +33,10 @@ public class ChattingAction implements ActionListener, Runnable {
     @Override
     public void actionPerformed(ActionEvent ae) {
         if (!chatWindow.hasChatStarted()) {
+            System.out.println("started new thread...");
             new Thread(this).start();
             chatWindow.chatStarted();
         } 
-        while (bufferNotSet) {
-            
-        }
         if (chatWindow.getChatLine().equals("")) {
             return;
         }
@@ -51,15 +48,14 @@ public class ChattingAction implements ActionListener, Runnable {
     @Override
     public void run() {
         try {
-            in = new BufferedReader(new InputStreamReader(
+            this.in = new BufferedReader(new InputStreamReader(
                     chatWindow.getSocket().getInputStream()));
-            out = new PrintWriter(chatWindow.getSocket().getOutputStream(), true);
+            this.out = new PrintWriter(chatWindow.getSocket().getOutputStream(), true);
             
-            bufferNotSet = false;
 
             // Process all messages from server, according to the protocol.
             while (true) {
-                String line = in.readLine();
+                String line = this.in.readLine();
                 if (line != null && !line.equals("")) {
                     chatWindow.updateChatArea(line);
                 }
