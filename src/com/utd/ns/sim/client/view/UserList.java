@@ -4,6 +4,7 @@
  */
 package com.utd.ns.sim.client.view;
 
+import com.utd.ns.sim.client.action.ChatAction;
 import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
 import com.utd.ns.sim.client.helper.Messages;
@@ -16,6 +17,7 @@ import java.io.IOException;
  * @author avinash
  */
 public class UserList extends javax.swing.JFrame {
+
     public String thisUser;
 
     /**
@@ -26,6 +28,11 @@ public class UserList extends javax.swing.JFrame {
         thisUser = Flags.sessionUserName;
         setUserNameLbl(Flags.sessionUserName);
         refreshUserList();
+        myInitComponents();
+    }
+
+    public final void myInitComponents() {
+        chat.addActionListener(new ChatAction(this));
     }
 
     public final void refreshUserList() {
@@ -83,7 +90,13 @@ public class UserList extends javax.swing.JFrame {
     public String getSelectedUser() {
         if (validateChoice()) {
             int listIndex = userList.getSelectedIndex();
-            return (Flags.loggedInUserList[listIndex]);
+            String selectedUser = Flags.loggedInUserList[listIndex];
+            if ("".equals(selectedUser)) {
+                showErrorMessage(Messages.NOT_SELECTED_SUGGESTION);
+                return null;
+            } else {
+                return (selectedUser);
+            }
         } else {
             showErrorMessage(Messages.NOT_SELECTED);
             return null;
@@ -119,48 +132,6 @@ public class UserList extends javax.swing.JFrame {
             System.exit(0);
             if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
                 //Logout successful
-            } else {
-                showErrorMessage(command + " failed" + ": " + recvPacket.getData());
-            }
-        } catch (ClassNotFoundException ex) {
-            showErrorMessage("OOps! Error: " + ex.getMessage());
-        } catch (IOException ex) {
-            showErrorMessage(ex.getMessage());
-        }
-    }
-
-    /*
-     * Initialize chat. Get user details from server
-     */
-    public void chatInit(String username) {
-        try {
-
-            String command = "talk";
-
-            /*
-             * Crafting a packet to send to the server
-             */
-            String dataToSend = thisUser + ":" + username;
-            System.out.println(dataToSend);
-            Packet sendPacket = new Packet();
-            long nonce = Functions.generateNonce();
-            sendPacket.craftPacket(command, Long.toString(nonce), dataToSend);
-            //Sending packet
-            System.out.println("Sending command talk " + Flags.socketToServer);
-            Serial.writeObject(Flags.socketToServer, sendPacket);
-            System.out.println("Out of write");
-
-            // Wait for reply from server
-            Packet recvPacket = (Packet) Serial.readObject(Flags.socketToServer);
-            System.out.println("In here");
-            String commandReceived = recvPacket.getCommand();
-            String data = recvPacket.getData();
-            Packet internalPacket = recvPacket.pkt;
-            if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
-                //Received correct packet
-                String[] split = data.split(":");
-                //Connect to IP:port
-                showErrorMessage(data + " - " + internalPacket.getData());
             } else {
                 showErrorMessage(command + " failed" + ": " + recvPacket.getData());
             }
@@ -236,28 +207,28 @@ public class UserList extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(errorMsg, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(chat)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(logout))
                     .add(layout.createSequentialGroup()
                         .add(0, 0, Short.MAX_VALUE)
-                        .add(errorMsg, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 213, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(chat)
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                .add(logout, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 76, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 219, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                .add(layout.createSequentialGroup()
-                                    .add(jLabel1)
-                                    .add(2, 2, 2)
-                                    .add(uNameLbl))
-                                .add(layout.createSequentialGroup()
-                                    .add(titleLbl)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(refresh))))
-                        .add(0, 0, Short.MAX_VALUE)))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel1)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(uNameLbl)
+                                .add(7, 7, 7))
+                            .add(layout.createSequentialGroup()
+                                .add(titleLbl)
+                                .add(38, 38, 38)
+                                .add(refresh)
+                                .add(4, 4, 4)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -274,12 +245,12 @@ public class UserList extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 166, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(chat)
                     .add(logout))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(errorMsg, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(errorMsg, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -298,9 +269,6 @@ public class UserList extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosed
 
     private void chatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chatMouseClicked
-        if (getSelectedUser() != null) {
-            chatInit(getSelectedUser());
-        }
     }//GEN-LAST:event_chatMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton chat;

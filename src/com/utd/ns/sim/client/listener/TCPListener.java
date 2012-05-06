@@ -35,18 +35,23 @@ public class TCPListener extends Thread {
              * can be closed from main()
              */
             Flags.clientSocket = new ServerSocket(0);
+            /*
+             * Notifying server the TCPListner socket that is generated randomly
+             * above
+             */
             Packet sendPacket = new Packet();
             sendPacket.craftPacket("myport", Long.toString(Long.parseLong(nonce) + 10), Flags.sessionUserName 
                     + ":" + Flags.clientSocket.getLocalPort());
             System.out.println(Flags.clientSocket);
             Serial.writeObject(Flags.socketToServer, sendPacket);
             
+            Flags.clientNumber = 0;
+            
             while (Flags.endClient == false) {
                 // Listening for incoming connections
-                System.out.println("listening...");
                 listenSock = Flags.clientSocket.accept();
-                //Adding entry into userList
 
+                //Adding entry into all Sockets
                 Flags.clientNumberWriteLock.lock();
                 try {
 
@@ -56,6 +61,7 @@ public class TCPListener extends Thread {
                     //Starting a new thread for actual processing!
                     tcpConnection = new TCPConnect(listenSock, Flags.clientNumber);
                     tcpConnection.start();
+                    System.out.println("Started TCPConnect");
                 } finally {
                     Flags.clientNumberWriteLock.unlock();
                 }
