@@ -12,7 +12,7 @@ import java.net.Socket;
  *
  * @author avinash
  */
-public class ChatWindow extends javax.swing.JFrame{
+public class ChatWindow extends javax.swing.JFrame {
 
     public static Socket socket;
     public static String withUser;
@@ -26,7 +26,8 @@ public class ChatWindow extends javax.swing.JFrame{
         socket = sock;
         withUser = string;
         myInitComponents();
-        
+        this.setVisible(true);
+
     }
 
     public final void myInitComponents() {
@@ -75,6 +76,11 @@ public class ChatWindow extends javax.swing.JFrame{
         send.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 sendMouseClicked(evt);
+            }
+        });
+        send.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                sendKeyPressed(evt);
             }
         });
 
@@ -135,35 +141,40 @@ public class ChatWindow extends javax.swing.JFrame{
     public boolean hasChatStarted() {
         return chatStarted;
     }
-    
+
     public void chatStarted() {
         chatStarted = true;
     }
-    
+
     public void chatStopped() {
         chatStarted = false;
     }
-    
+
     public Socket getSocket() {
         return ChatWindow.socket;
     }
-    
-    public void sendClicked () {
+
+    public void sendClicked() {
         chatArea.append("Me: " + chatLine.getText().trim() + "\n");
         chatLine.setText("");
     }
-    
+
     public String getChatLine() {
         return chatLine.getText().trim();
     }
-    
+
     public void updateChatArea(String string) {
         chatArea.append(withUser + ": " + string + "\n");
     }
-    
+
     private void sendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sendMouseClicked
-        
     }//GEN-LAST:event_sendMouseClicked
+
+    private void sendKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sendKeyPressed
+        if (evt.getKeyCode() == 10) {
+            this.send.doClick();
+        }
+   }//GEN-LAST:event_sendKeyPressed
 
     private void chatLineKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_chatLineKeyPressed
         if (evt.getKeyCode() == 10) {

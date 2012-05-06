@@ -114,8 +114,11 @@ public class ChatInitAction implements ActionListener, Runnable {
                         //Done!
                         //open ChatWindow
                         System.out.println(socketToUser);
-                        ChatWindow cWin = new ChatWindow(socketToUser, userToChat);
-                        cWin.setVisible(true);
+                        Flags.socketTo.put(userToChat, socketToUser);
+                        Flags.chatWindowList.put(userToChat, new ChatWindow(socketToUser, userToChat));
+                        Flags.chatWindowList.get(userToChat).setVisible(true);
+                        //ChatWindow cWin = new ChatWindow(socketToUser, userToChat);
+                        //cWin.setVisible(true);
                         Flags.chatSession.add(this.userToChat);
                         System.out.println("Chatting!!!!");
                     }

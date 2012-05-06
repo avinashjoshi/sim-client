@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.utd.ns.sim.client.helper;
 
+import com.utd.ns.sim.client.view.ChatWindow;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -30,11 +30,19 @@ public class Flags {
     public static Integer clientNumber = 0;
     public static ArrayList<String> outgoingChatSession;
     public static ArrayList<String> chatSession;
-    
+    public static HashMap<String, ChatWindow> chatWindowList;
+    public static HashMap<String, ChatWindow> chatWindowListFrom;
+    public static HashMap<String, Socket> socketTo;
+    public static HashMap<String, Socket> socketFrom;
+
     public Flags() {
         allSocketList = new HashMap<Integer, Socket>();
         endClient = false;
         outgoingChatSession = new ArrayList<String>();
         chatSession = new ArrayList<String>();
+        chatWindowList = new HashMap<String, ChatWindow>();
+        chatWindowListFrom = new HashMap<String, ChatWindow>();
+        socketFrom = new HashMap<String, Socket>();
+        socketTo = new HashMap<String, Socket>();
     }
 }
