@@ -17,14 +17,16 @@ public class ChatWindow extends javax.swing.JFrame {
     private Socket socket;
     private String withUser;
     private boolean chatStarted = false;
+    private String sessionKey;
 
     /**
      * Creates new form ChatWindow
      */
-    public ChatWindow(Socket sock, String string) {
+    public ChatWindow(Socket sock, String string, String key) {
         initComponents();
         socket = sock;
         withUser = string;
+        sessionKey = key;
         myInitComponents();
     }
 
@@ -132,6 +134,10 @@ public class ChatWindow extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public String getSessionKey() {
+        return sessionKey;
+    }
+    
     public boolean hasChatStarted() {
         return chatStarted;
     }

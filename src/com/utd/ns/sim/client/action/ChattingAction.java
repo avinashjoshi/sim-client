@@ -5,6 +5,7 @@
 package com.utd.ns.sim.client.action;
 
 import com.utd.ns.sim.client.view.ChatWindow;
+import com.utd.ns.sim.crypto.AES;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -23,6 +24,7 @@ public class ChattingAction implements ActionListener, Runnable {
     private ChatWindow chatWindow;
     private BufferedReader in;
     private PrintWriter out;
+    private String stringToSend;
 
     public ChattingAction(ChatWindow aThis) {
         chatWindow = aThis;
@@ -40,7 +42,10 @@ public class ChattingAction implements ActionListener, Runnable {
         if (chatWindow.getChatLine().equals("")) {
             return;
         }
-        out.println(chatWindow.getChatLine());
+        stringToSend = AES.doEncryptDecryptHMACToString(chatWindow.getChatLine(), chatWindow.getSessionKey(), 'E');
+        stringToSend = stringToSend.replaceAll("\n", "");
+        stringToSend = stringToSend.replaceAll("\r", "");
+        out.println(stringToSend);
         chatWindow.sendClicked();
         out.flush();
     }
@@ -57,6 +62,7 @@ public class ChattingAction implements ActionListener, Runnable {
             while (true) {
                 String line = this.in.readLine();
                 if (line != null && !line.equals("")) {
+                    line = AES.doEncryptDecryptHMACToString(line, chatWindow.getSessionKey(), 'D');
                     chatWindow.updateChatArea(line);
                 }
             }

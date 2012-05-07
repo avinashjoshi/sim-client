@@ -9,6 +9,7 @@ import com.utd.ns.sim.client.helper.Functions;
 import com.utd.ns.sim.client.helper.Messages;
 import com.utd.ns.sim.client.view.ChatWindow;
 import com.utd.ns.sim.client.view.UserList;
+import com.utd.ns.sim.crypto.AES;
 import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
 import java.awt.event.ActionEvent;
@@ -27,6 +28,7 @@ public class ChatInitAction implements ActionListener, Runnable {
     private String userToChat;
     private Socket socketToUser;
     private ChatWindow cWin;
+    private String nonceReceived;
 
     public ChatInitAction(UserList uForm) {
         this.uListForm = uForm;
@@ -76,52 +78,56 @@ public class ChatInitAction implements ActionListener, Runnable {
              * Crafting a packet to send to the server
              */
             String dataToSend = Flags.sessionUserName + ":" + userToChat;
-            System.out.println(dataToSend);
+            dataToSend = AES.doEncryptDecryptHMACToString(dataToSend, Flags.sessionAESKey, 'E');
             Packet sendPacket = new Packet();
             long nonce = Functions.generateNonce();
-            sendPacket.craftPacket(command, Long.toString(nonce), dataToSend);
+            String nonceToSend = AES.doEncryptDecryptHMACToString(Long.toString(nonce), Flags.sessionAESKey, 'E');
+            sendPacket.craftPacket(command, nonceToSend, dataToSend);
             //Sending packet
-            System.out.println("Sending command talk " + Flags.socketToServer);
             Serial.writeObject(Flags.socketToServer, sendPacket);
-            System.out.println("Out of write");
 
             // Wait for reply from server
             Packet recvPacket = (Packet) Serial.readObject(Flags.socketToServer);
             System.out.println("In here");
             String commandReceived = recvPacket.getCommand();
             String data = recvPacket.getData();
+            data = AES.doEncryptDecryptHMACToString(data, Flags.sessionAESKey, 'D');
+            System.out.println("bob:Key:IP:Port ------ " + data);
             Packet internalPacket = recvPacket.pkt;
             if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
                 //Received correct packet
 
                 //Connect to IP:port
                 System.out.println("Packet inside packet");
-                uListForm.showErrorMessage(data + " - " + internalPacket.getData());
+                uListForm.showErrorMessage("");
                 /*
                  * Try contacting that client's ip:port and check for response
                  */
-                String[] ipPort = data.split(":");
-                //userToChat = ipPort[0];
-                String key = ipPort[1];
-                if (connectToServer(ipPort[2], ipPort[3])) {
+                String[] splitData = data.split(":");
+                //userToChat == splitData[0];
+                String sessionKey = splitData[1];
+                if (connectToServer(splitData[2], splitData[3])) {
                     internalPacket.pkt = new Packet();
                     long timeStamp = System.currentTimeMillis();
-                    internalPacket.pkt.setNonce(Long.toString(timeStamp));
+                    nonceToSend = AES.doEncryptDecryptHMACToString(Long.toString(timeStamp), sessionKey, 'E');
+                    internalPacket.pkt.setNonce(nonceToSend);
                     Serial.writeObject(socketToUser, internalPacket);
                     System.out.println("Sent ticket to client");
                     recvPacket = (Packet) Serial.readObject(socketToUser);
                     System.out.println("Received packet from client");
-                    if (Functions.checkNonce(recvPacket.getNonce(), timeStamp + 1)) {
+                    nonceReceived = AES.doEncryptDecryptHMACToString(recvPacket.getNonce(), sessionKey, 'D');
+                    data = AES.doEncryptDecryptHMACToString(recvPacket.getData(), sessionKey, 'D');
+                    if (Functions.checkNonce(nonceReceived, timeStamp + 1)) {
                         //Done!
                         //open ChatWindow
                         System.out.println(socketToUser);
-                        cWin = new ChatWindow(socketToUser, userToChat);
-                        System.out.println("===== Doesnt come here :( =====");
+                        cWin = new ChatWindow(socketToUser, userToChat, sessionKey);
+                        sessionKey = null;
                         cWin.setVisible(true);
                         Flags.chatSession.add(this.userToChat);
                         System.out.println("Chatting!!!!");
                     }
-                    uListForm.showErrorMessage(recvPacket.getData());
+                    uListForm.showErrorMessage(data);
                 }
             } else {
                 System.out.println("Just packet");

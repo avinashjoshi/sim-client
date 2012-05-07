@@ -7,6 +7,7 @@ package com.utd.ns.sim.client.listener;
 import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
 import com.utd.ns.sim.client.view.ChatWindow;
+import com.utd.ns.sim.crypto.AES;
 import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
 import java.io.IOException;
@@ -32,6 +33,8 @@ class TCPConnect extends Thread {
     private String data;
     private Packet internalPacket;
     private ChatWindow cWin;
+    private String dataToSend;
+    private String sessionKey;
 
     TCPConnect(Socket listenSock, int clientNumber) {
         sock = listenSock;
@@ -50,6 +53,10 @@ class TCPConnect extends Thread {
                 command = packet.getCommand();  // Get the command
                 nonce = packet.getNonce();      // Get the Nonce
                 data = packet.getData();        // Get the data
+                
+                command = AES.doEncryptDecryptHMACToString(command, Flags.sessionAESKey, 'D');
+                nonce = AES.doEncryptDecryptHMACToString(nonce, Flags.sessionAESKey, 'D');
+                data = AES.doEncryptDecryptHMACToString(data, Flags.sessionAESKey, 'D');
 
                 System.out.println("Received: " + command);
 
@@ -75,6 +82,8 @@ class TCPConnect extends Thread {
                             continue;
                         }
                         String[] dataValue = data.split(":");
+                        sessionKey = dataValue[1];
+                        nonce = AES.doEncryptDecryptHMACToString(internalPacket.getNonce(), sessionKey, 'D');
                         if (Flags.chatSession.contains(dataValue[0])) {
                             //user already chatting
                             //Just a check - not necessary in normal conditions
@@ -82,21 +91,23 @@ class TCPConnect extends Thread {
                             continue;
                         }
                         int choice = JOptionPane.showOptionDialog(null,
-                                "User " + data + " wants to talk to you!", "Chat Request",
+                                "User " + dataValue[0] + " wants to talk to you!", "Chat Request for " + Flags.sessionUserName,
                                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
                         if (choice == 0) {
-                            sendPacket.craftPacket("talkresponse", Functions.nonceSuccess(internalPacket.getNonce()),
-                                    "YES");
+                            nonce = AES.doEncryptDecryptHMACToString(Functions.nonceSuccess(nonce), sessionKey, 'E');
+                            dataToSend = AES.doEncryptDecryptHMACToString("YES", sessionKey, 'E');
+                            sendPacket.craftPacket("talkresponse", nonce, dataToSend);
                             Serial.writeObject(sock, sendPacket);
                             //Open chatwindow
                             System.out.println(sock);
-                            cWin = new ChatWindow(sock, dataValue[0]);
+                            cWin = new ChatWindow(sock, dataValue[0], sessionKey);
+                            sessionKey = null;
                             cWin.setVisible(true);
                             Flags.chatSession.add(dataValue[0]);
                             System.out.println("Chatting!!!!");
                             break;
                         } else {
-                            sendPacket.craftPacket("talkresponse", Functions.nonceFail(internalPacket.getNonce()),
+                            sendPacket.craftPacket("talkresponse", Functions.nonceFail(nonce),
                                     "NO");
                             Serial.writeObject(sock, sendPacket);
 

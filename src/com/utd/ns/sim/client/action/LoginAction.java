@@ -10,11 +10,19 @@ import com.utd.ns.sim.client.helper.Messages;
 import com.utd.ns.sim.client.listener.TCPListener;
 import com.utd.ns.sim.client.view.LoginForm;
 import com.utd.ns.sim.client.view.UserList;
+import com.utd.ns.sim.crypto.AES;
+import com.utd.ns.sim.crypto.RSA;
+import com.utd.ns.sim.crypto.SHA;
 import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.DigestSignatureSpi;
 
 /**
  *
@@ -48,8 +56,21 @@ public class LoginAction implements ActionListener, Runnable {
              */
             Packet sendPacket = new Packet();
             Long nonce = Functions.generateNonce();
+            
+            String timeStamp = Long.toString(System.currentTimeMillis());
+            
+            /*
+             * Key = H(usernameH(password))
+             */
+            Flags.sessionAESKey = SHA.SHA512String(loginForm.getUserName() + SHA.SHA256String(loginForm.getPassword()));
+            
+            ArrayList<String> nonceToSend = AES.doEncryptDecryptHMAC(Long.toString(nonce), Flags.sessionAESKey, 'E');
+            String dataToSend = RSA.encrypt(loginForm.getUserName()
+                    + ":" + loginForm.getPassword()
+                    + ":" + timeStamp
+                    , Flags.rsaKey);
 
-            sendPacket.craftPacket(command, Long.toString(nonce), loginForm.getUserName() + ":" + loginForm.getPassword());
+            sendPacket.craftPacket(command, nonceToSend.get(1), dataToSend);
 
             //Sending packet
             Serial.writeObject(Flags.socketToServer, sendPacket);
@@ -68,6 +89,8 @@ public class LoginAction implements ActionListener, Runnable {
             } else {
                 loginForm.showErrorMessage(command + " failed" + ": " + recvPacket.getData());
             }
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(LoginAction.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             loginForm.showErrorMessage("OOps! Error: " + ex.getMessage());
         } catch (IOException ex) {

@@ -8,6 +8,7 @@ import com.utd.ns.sim.client.action.ChatInitAction;
 import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
 import com.utd.ns.sim.client.helper.Messages;
+import com.utd.ns.sim.crypto.AES;
 import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.io.IOException;
 public class UserList extends javax.swing.JFrame {
 
     private String thisUser;
+    private String nonceToSend;
 
     /**
      * Creates new form UserList
@@ -42,15 +44,23 @@ public class UserList extends javax.swing.JFrame {
              * Crafting a packet to send to the server
              */
             Packet sendPacket = new Packet();
-            long nonce = Functions.generateNonce();
-            sendPacket.craftPacket(command, Long.toString(nonce), Flags.sessionUserName);
+            long nonce = System.currentTimeMillis();
+            
+            nonceToSend = AES.doEncryptDecryptHMACToString(Long.toString(nonce), Flags.sessionAESKey, 'E');
+            
+            sendPacket.craftPacket(command, nonceToSend, AES.doEncryptDecryptHMACToString(Flags.sessionUserName, Flags.sessionAESKey, 'E'));
             //Sending packet
             Serial.writeObject(Flags.socketToServer, sendPacket);
 
             // Wait for reply from server
             Packet recvPacket = (Packet) Serial.readObject(Flags.socketToServer);
+            /*
+             * DO: Check if timestamp - 1 = old timestamp!!
+             */
             if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
                 String data = recvPacket.getData();
+                System.out.println("Received list: " + data);
+                data = AES.doEncryptDecryptHMACToString(data, Flags.sessionAESKey, 'D');
                 errorMsg.setVisible(false);
 
                 if ("".equalsIgnoreCase(data)) {
