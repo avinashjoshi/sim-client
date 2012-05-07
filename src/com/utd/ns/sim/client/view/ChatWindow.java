@@ -29,7 +29,7 @@ public class ChatWindow extends javax.swing.JFrame {
     }
 
     public final void myInitComponents() {
-        this.setTitle("SIM: Chatting with " + withUser);
+        this.setTitle("SIM: " + Flags.sessionUserName + " chatting with " + withUser);
         userLbl.setText(Flags.sessionUserName);
         withUserLbl.setText(withUser);
         send.addActionListener(new ChattingAction(this));
@@ -77,11 +77,6 @@ public class ChatWindow extends javax.swing.JFrame {
                 sendMouseClicked(evt);
             }
         });
-        send.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                sendKeyPressed(evt);
-            }
-        });
 
         chattingWithLbl.setText("Chatting with:");
 
@@ -112,8 +107,8 @@ public class ChatWindow extends javax.swing.JFrame {
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .add(chattingWithLbl)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(withUserLbl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(6, 6, 6)))
+                                .add(withUserLbl)
+                                .add(13, 13, 13)))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -122,9 +117,9 @@ public class ChatWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(chattingWithLbl)
-                    .add(withUserLbl)
                     .add(jLabel1)
-                    .add(userLbl))
+                    .add(userLbl)
+                    .add(withUserLbl))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -168,12 +163,6 @@ public class ChatWindow extends javax.swing.JFrame {
 
     private void sendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sendMouseClicked
     }//GEN-LAST:event_sendMouseClicked
-
-    private void sendKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sendKeyPressed
-        if (evt.getKeyCode() == 10) {
-            this.send.doClick();
-        }
-   }//GEN-LAST:event_sendKeyPressed
 
     private void chatLineKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_chatLineKeyPressed
         if (evt.getKeyCode() == 10) {

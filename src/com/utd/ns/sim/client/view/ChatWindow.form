@@ -41,8 +41,8 @@
                               <EmptySpace max="32767" attributes="0"/>
                               <Component id="chattingWithLbl" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="withUserLbl" min="-2" pref="15" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                              <Component id="withUserLbl" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -57,9 +57,9 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="chattingWithLbl" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="withUserLbl" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="userLbl" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="withUserLbl" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane1" pref="288" max="32767" attributes="0"/>
@@ -105,7 +105,6 @@
       </Properties>
       <Events>
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="sendMouseClicked"/>
-        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="sendKeyPressed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="chattingWithLbl">

@@ -67,19 +67,15 @@ public final class LoginForm extends javax.swing.JFrame {
         simTitleLbl.setFont(new java.awt.Font("Century Gothic", 0, 18)); // NOI18N
         simTitleLbl.setText("Secure Instant Messenger");
 
-        register.setText("Register");
-        register.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                registerMouseClicked(evt);
+        password.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                passwordKeyPressed(evt);
             }
         });
 
+        register.setText("Register");
+
         login.setText("Login");
-        login.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                loginMouseClicked(evt);
-            }
-        });
 
         errorMsg.setFont(new java.awt.Font("Lucida Grande", 2, 13)); // NOI18N
         errorMsg.setForeground(new java.awt.Color(255, 0, 0));
@@ -144,11 +140,11 @@ public final class LoginForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void registerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_registerMouseClicked
-    }//GEN-LAST:event_registerMouseClicked
-
-    private void loginMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginMouseClicked
-    }//GEN-LAST:event_loginMouseClicked
+    private void passwordKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordKeyPressed
+        if (evt.getKeyCode() == 10) {
+            this.login.doClick();
+        }
+    }//GEN-LAST:event_passwordKeyPressed
 
     public void connectToServer() {
 
