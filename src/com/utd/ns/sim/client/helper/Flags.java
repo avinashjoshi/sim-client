@@ -34,6 +34,7 @@ public class Flags {
     public static HashMap<String, ChatWindow> chatWindowListFrom;
     public static HashMap<String, Socket> socketTo;
     public static HashMap<String, Socket> socketFrom;
+    public static String rsaKey = "etc/server.pub";
 
     public Flags() {
         allSocketList = new HashMap<Integer, Socket>();

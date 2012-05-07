@@ -8,6 +8,7 @@ import com.utd.ns.sim.client.helper.Flags;
 import com.utd.ns.sim.client.helper.Functions;
 import com.utd.ns.sim.client.helper.Messages;
 import com.utd.ns.sim.client.view.LoginForm;
+import com.utd.ns.sim.crypto.RSA;
 import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
 import java.awt.event.ActionEvent;
@@ -47,7 +48,11 @@ public class RegisterAction implements ActionListener, Runnable {
              */
             Packet sendPacket = new Packet();
             Long nonce = Functions.generateNonce();
-            sendPacket.craftPacket(command, Long.toString(nonce), loginForm.getUserName() + ":" + loginForm.getPassword());
+            String dataToEncrypt = loginForm.getUserName() + ":" + loginForm.getPassword();
+            String data = RSA.encrypt(dataToEncrypt, Flags.rsaKey);
+            dataToEncrypt = Long.toString(nonce);
+            String nonceToSend = RSA.encrypt(dataToEncrypt, Flags.rsaKey  );
+            sendPacket.craftPacket(command, nonceToSend, data);
 
             //Sending packet
             Serial.writeObject(Flags.socketToServer, sendPacket);
