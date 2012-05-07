@@ -55,7 +55,6 @@ public class ChatInitAction implements ActionListener, Runnable {
         try {
             // Connect to socket
             socketToUser = new Socket(host, port);
-            System.out.println("---------- " + socketToUser + " -----------");
             uListForm.showErrorMessage("Connected to " + host + "...");
             return true;
         } catch (UnknownHostException ex) {
@@ -88,17 +87,14 @@ public class ChatInitAction implements ActionListener, Runnable {
 
             // Wait for reply from server
             Packet recvPacket = (Packet) Serial.readObject(Flags.socketToServer);
-            System.out.println("In here");
             String commandReceived = recvPacket.getCommand();
             String data = recvPacket.getData();
             data = AES.doEncryptDecryptHMACToString(data, Flags.sessionAESKey, 'D');
-            System.out.println("bob:Key:IP:Port ------ " + data);
             Packet internalPacket = recvPacket.pkt;
             if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
                 //Received correct packet
 
                 //Connect to IP:port
-                System.out.println("Packet inside packet");
                 uListForm.showErrorMessage("");
                 /*
                  * Try contacting that client's ip:port and check for response
@@ -112,25 +108,22 @@ public class ChatInitAction implements ActionListener, Runnable {
                     nonceToSend = AES.doEncryptDecryptHMACToString(Long.toString(timeStamp), sessionKey, 'E');
                     internalPacket.pkt.setNonce(nonceToSend);
                     Serial.writeObject(socketToUser, internalPacket);
-                    System.out.println("Sent ticket to client");
+                    //Ticket sent to client
                     recvPacket = (Packet) Serial.readObject(socketToUser);
-                    System.out.println("Received packet from client");
+
                     nonceReceived = AES.doEncryptDecryptHMACToString(recvPacket.getNonce(), sessionKey, 'D');
                     data = AES.doEncryptDecryptHMACToString(recvPacket.getData(), sessionKey, 'D');
                     if (Functions.checkNonce(nonceReceived, timeStamp + 1)) {
                         //Done!
                         //open ChatWindow
-                        System.out.println(socketToUser);
                         cWin = new ChatWindow(socketToUser, userToChat, sessionKey);
                         sessionKey = null;
                         cWin.setVisible(true);
                         Flags.chatSession.add(this.userToChat);
-                        System.out.println("Chatting!!!!");
                     }
                     uListForm.showErrorMessage(data);
                 }
             } else {
-                System.out.println("Just packet");
                 uListForm.showErrorMessage(command + " failed" + ": " + recvPacket.getData());
             }
         } catch (ClassNotFoundException ex) {

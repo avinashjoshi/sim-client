@@ -55,11 +55,11 @@ public class UserList extends javax.swing.JFrame {
             // Wait for reply from server
             Packet recvPacket = (Packet) Serial.readObject(Flags.socketToServer);
             /*
-             * DO: Check if timestamp - 1 = old timestamp!!
+             * Check if timestamp - 1 = old timestamp!!
              */
-            if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
+            String nonceReceived = AES.doEncryptDecryptHMACToString(recvPacket.getNonce(), Flags.sessionAESKey, 'D');
+            if (Functions.checkNonce(nonceReceived, nonce + 1)) {
                 String data = recvPacket.getData();
-                System.out.println("Received list: " + data);
                 data = AES.doEncryptDecryptHMACToString(data, Flags.sessionAESKey, 'D');
                 errorMsg.setVisible(false);
 

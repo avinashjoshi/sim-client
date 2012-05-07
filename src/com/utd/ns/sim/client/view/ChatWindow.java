@@ -35,7 +35,6 @@ public class ChatWindow extends javax.swing.JFrame {
         userLbl.setText(Flags.sessionUserName);
         withUserLbl.setText(withUser);
         send.addActionListener(new ChattingAction(this));
-        System.out.println("Finished initializing.... window.... before first click");
         send.doClick();
     }
 

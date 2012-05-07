@@ -12,7 +12,6 @@ import com.utd.ns.sim.packet.Packet;
 import com.utd.ns.sim.packet.Serial;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -46,7 +45,6 @@ class TCPConnect extends Thread {
     public void run() {
         try {
             while (true) {
-                System.out.println("Waiting for packet inside run...");
                 packet = (Packet) Serial.readObject(sock);
 
                 sendPacket = new Packet();  // Creating a new packet to send back
@@ -57,8 +55,6 @@ class TCPConnect extends Thread {
                 command = AES.doEncryptDecryptHMACToString(command, Flags.sessionAESKey, 'D');
                 nonce = AES.doEncryptDecryptHMACToString(nonce, Flags.sessionAESKey, 'D');
                 data = AES.doEncryptDecryptHMACToString(data, Flags.sessionAESKey, 'D');
-
-                System.out.println("Received: " + command);
 
                 if (command.equals("")
                         || data.equals("")
@@ -99,18 +95,16 @@ class TCPConnect extends Thread {
                             sendPacket.craftPacket("talkresponse", nonce, dataToSend);
                             Serial.writeObject(sock, sendPacket);
                             //Open chatwindow
-                            System.out.println(sock);
                             cWin = new ChatWindow(sock, dataValue[0], sessionKey);
                             sessionKey = null;
                             cWin.setVisible(true);
                             Flags.chatSession.add(dataValue[0]);
-                            System.out.println("Chatting!!!!");
                             break;
                         } else {
-                            sendPacket.craftPacket("talkresponse", Functions.nonceFail(nonce),
-                                    "NO");
+                            nonce = AES.doEncryptDecryptHMACToString(Functions.nonceFail(nonce), sessionKey, 'E');
+                            dataToSend = AES.doEncryptDecryptHMACToString("NOT", sessionKey, 'E');
+                            sendPacket.craftPacket("talkresponse", nonce, dataToSend);
                             Serial.writeObject(sock, sendPacket);
-
                         }
                     }
                 } else {
