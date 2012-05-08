@@ -77,6 +77,7 @@ public class LoginAction implements ActionListener, Runnable {
 
             // Wait for reply from server
             Packet recvPacket = (Packet) Serial.readObject(Flags.socketToServer);
+            //System.out.println(recvPacket.getNonce() + "-" + Long.toString(nonce+1));
             if (Functions.checkNonce(recvPacket.getNonce(), nonce + 1)) {
                 loginForm.showErrorMessage(command + " success" + ": " + recvPacket.getData());
                 Flags.sessionUserName = loginForm.getUserName();
